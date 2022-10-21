@@ -34,7 +34,8 @@
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "warn",
       "class-methods-use-this": "off",
-      "semi": [2, "always"]
+      "semi": [2, "always"],
+      "react/require-default-props": "off"
     },
     "settings": {
       "import/resolver": {

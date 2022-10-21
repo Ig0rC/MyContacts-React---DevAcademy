@@ -14,7 +14,7 @@ function Loader({ isLoading }: LoaderProps): JSX.Element | null {
 
   return ReactDOM.createPortal(
     <Overlay>
-      <Spinner fontSize="90" />
+      <Spinner size="90" />
     </Overlay>,
    document.getElementById('loader-root') as HTMLElement,
   );

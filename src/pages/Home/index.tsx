@@ -100,7 +100,13 @@ function Home(): JSX.Element {
           <div className="detailsError">
             <strong>Ocorreu um erro ao obter os seus contatos!</strong>
 
-            <Button type="button" onClick={handleTryAgain}>
+            <Button
+              isLoading={false}
+              disabled={false}
+              danger={false}
+              type="button"
+              onClick={handleTryAgain}
+            >
               Tentar Novamente
             </Button>
           </div>

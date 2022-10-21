@@ -13,9 +13,6 @@ class ContactsService {
 
   createContact<D, R>(formData: D): Promise<unknown> {
     return this.httpClient.post<D, R>('/contacts', {
-      headers: {
-        Authorization: 'meuToken',
-      },
       body: formData,
     });
   }

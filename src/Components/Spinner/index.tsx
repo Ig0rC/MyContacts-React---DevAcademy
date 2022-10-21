@@ -1,14 +1,9 @@
-import PropTypes from 'prop-types';
 import { StyledSpinner } from './styles';
 
 interface Props {
-  fontSize: string;
+  size: string;
 }
 
-export default function Spinner({ fontSize } : Props): JSX.Element {
-  return <StyledSpinner fontSize={fontSize} />;
+export default function Spinner({ size } : Props): JSX.Element {
+  return <StyledSpinner size={size} />;
 }
-
-Spinner.propTypes = {
-  fontSize: PropTypes.number.isRequired,
-};

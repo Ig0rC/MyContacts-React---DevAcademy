@@ -23,7 +23,12 @@ function Modal({ danger }: modalProps): JSX.Element {
           >
             Cancelar
           </button>
-          <Button danger type="button">
+          <Button
+            disabled={false}
+            isLoading={false}
+            danger
+            type="button"
+          >
             Deletar
           </Button>
         </Footer>

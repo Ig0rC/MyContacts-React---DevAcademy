@@ -13,7 +13,7 @@ function EditContact(): JSX.Element {
       category_id: categoryId,
     };
 
-    const response = await ContactsService.createContact(contact);
+    await ContactsService.createContact(contact);
   }
 
   return (

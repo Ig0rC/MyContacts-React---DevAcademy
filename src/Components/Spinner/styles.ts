@@ -35,12 +35,12 @@ const round = keyframes`
 `;
 
 interface StyledSpinnerProps {
-  fontSize: string;
+  size: string;
 }
 
 export const StyledSpinner = styled.div<StyledSpinnerProps>`
   color: ${({ theme }) => theme.colors.primary.main};
-  font-size:  ${({ fontSize }) => `${fontSize}px`};
+  font-size:  ${({ size }) => `${size}px`};
   width: 1em;
   height: 1em;
   border-radius: 50%;

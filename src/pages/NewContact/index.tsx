@@ -3,6 +3,7 @@ import ContactForm from '../../Components/ContactForm';
 import ContactsService from '../../services/ContactsService';
 import ICreateContactRequest from '../../HTTP/requests/ICreateContactRequest';
 import IResponseContactRequest from '../../HTTP/responses/IContactResponse';
+import toast from '../../utils/toast';
 
 function NewContact(): JSX.Element {
   async function handleSubmit(
@@ -16,12 +17,18 @@ function NewContact(): JSX.Element {
         category_id: categoryId,
       };
 
-      const response = await ContactsService
+      await ContactsService
         .createContact<ICreateContactRequest, IResponseContactRequest>(contact);
 
-      console.log(response);
+      toast({
+        type: 'success',
+        text: 'Contato cadastrado com sucesso!',
+      });
     } catch (error) {
-      console.log(error.response);
+      toast({
+        type: 'danger',
+        text: 'Ocorreu um erro ao cadastrar o contato!',
+      });
     }
   }
 

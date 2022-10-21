@@ -17,7 +17,7 @@ function FormGroup({ children, error, isLoading }: FormGroupProps): JSX.Element 
 
         {isLoading && (
           <div className="loader">
-            <Spinner fontSize="16" />
+            <Spinner size="16" />
           </div>
         )}
       </div>

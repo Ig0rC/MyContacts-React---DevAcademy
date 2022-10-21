@@ -38,16 +38,16 @@ class HttpClient {
     });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public async makeRequest<D>(path: string, options: RequestMask<D>): Promise<any> {
     await delay(500);
-
     const headers = new Headers();
 
     if (options.body) {
-      return headers.append('Content-Type', 'application/json');
+      headers.append('Content-Type', 'application/json');
     }
 
-    if (options.headers) {
+    if (options.headers !== undefined) {
       Object.entries(options.headers).forEach(([nameHeader, valueHeader]) => {
         headers.append(nameHeader, valueHeader);
       });

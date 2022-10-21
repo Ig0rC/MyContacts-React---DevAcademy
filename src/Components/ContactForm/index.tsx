@@ -14,6 +14,7 @@ import Select from '../Select';
 import Button from '../Button';
 import useErrors from '../../hooks/useErrors';
 import CategoriesServices from '../../services/CategoriesService';
+import Spinner from '../Spinner';
 
 interface ICategories {
   id: string;
@@ -35,6 +36,7 @@ function ContactForm(
   const [phone, setPhone] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [categories, setCategories] = useState<ICategories[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const isFormValid = (name && errors.length === 0);
 
@@ -44,8 +46,6 @@ function ContactForm(
         const categoriesList = await CategoriesServices.listCategories<ICategories[]>();
 
         setCategories(categoriesList);
-      } catch {
-        console.log('aqui');
       } finally {
         setIsLoadingCategories(false);
       }
@@ -54,11 +54,16 @@ function ContactForm(
     loadCategories();
   }, []);
 
-  function handleSubmit(event: FormEvent): void {
+  async function handleSubmit(event: FormEvent): Promise<void> {
     event.preventDefault();
-    onSubmit(
+
+    setIsSubmitting(true);
+
+    await onSubmit(
       name, email, phone, categoryId,
     );
+
+    setIsSubmitting(false);
   }
 
   function handleNameChange(event: ChangeEvent<HTMLInputElement>): void {
@@ -93,6 +98,7 @@ function ContactForm(
           value={name}
           onChange={handleNameChange}
           placeholder="Nome *"
+          disabled={isSubmitting}
         />
       </FormGroup>
 
@@ -103,6 +109,7 @@ function ContactForm(
           type="email"
           onChange={handleEmailChange}
           placeholder="E-mail"
+          disabled={isSubmitting}
         />
       </FormGroup>
 
@@ -112,6 +119,7 @@ function ContactForm(
           placeholder="Telefone"
           onChange={handlePhoneChange}
           maxLength={15}
+          disabled={isSubmitting}
         />
       </FormGroup>
 
@@ -119,7 +127,7 @@ function ContactForm(
         <Select
           value={categoryId}
           onChange={({ target: { value } }) => setCategoryId(value)}
-          disabled={isLoadingCategories}
+          disabled={isLoadingCategories || isSubmitting}
         >
           <option value="">Sem categoria</option>
 
@@ -130,8 +138,14 @@ function ContactForm(
       </FormGroup>
 
       <ButtonContainer>
-        <Button type="submit" disabled={!isFormValid}>
-          {buttonLabel}
+        <Button
+          danger={false}
+          type="submit"
+          disabled={!isFormValid}
+          isLoading={isSubmitting}
+        >
+          {!isSubmitting && buttonLabel}
+          {isSubmitting && <Spinner size="16" />}
         </Button>
       </ButtonContainer>
     </Form>

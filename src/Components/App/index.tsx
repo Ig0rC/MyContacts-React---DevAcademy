@@ -5,15 +5,17 @@ import defaultTheme from '../../assets/styles/themes/default';
 import { Container } from './styles';
 
 import Header from '../Header';
-// import ContactList from '../ContactsList';
 
 import Routes from '../../Routes';
+import ToastContainer from '../Toast/ToastContainer';
 
 function App(): JSX.Element {
   return (
     <BrowserRouter>
       <ThemeProvider theme={defaultTheme}>
         <GlobalStyles />
+
+        <ToastContainer />
 
         <Container>
           <Header />
