@@ -17,6 +17,8 @@ import Loader from '../../Components/Loader/index';
 import sad from '../../assets/images/sad.svg';
 import ContactsService from '../../services/ContactsService';
 import Button from '../../Components/Button';
+import Modal from '../../Components/Modal';
+import toast from '../../utils/toast';
 
 interface Contact {
   id: string;
@@ -33,8 +35,10 @@ function Home(): JSX.Element {
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
-
-  const filteredContacts = useMemo(() => contacts.filter((contact) => (
+  const [isDeleteModalVisible, setisDeleteModalVisible] = useState(false);
+  const [contactBeingDeleted, setContactBeingDeleted] = useState<Contact | null>(null);
+  const [isLoadingDelete, setIsLoadingDelete] = useState(false);
+  const filteredContacts = useMemo(() => contacts?.filter((contact) => (
     contact.name.toLowerCase().includes(searchTerm.toLowerCase())
   )), [contacts, searchTerm]);
 
@@ -69,11 +73,62 @@ function Home(): JSX.Element {
     loadContacts();
   }
 
+  function handleDeleteContact(contact: Contact): void {
+    setContactBeingDeleted(contact);
+    setisDeleteModalVisible(true);
+  }
+
+  function handleCloseDeleteModal(): void {
+    setisDeleteModalVisible(false);
+    setContactBeingDeleted(null);
+  }
+
+  async function handleConfirmDeleteContact(): Promise<void> {
+    try {
+      setIsLoadingDelete(true);
+      if (contactBeingDeleted) {
+        await ContactsService.deleteContact(contactBeingDeleted?.id);
+
+        setContacts((prevState) => prevState?.filter(
+          (contact) => (contact.id !== contactBeingDeleted.id),
+        ));
+
+        handleCloseDeleteModal();
+
+        toast({
+          text: 'Contato deletado com sucesso!',
+          type: 'success',
+        });
+      } else {
+        setIsLoading(false);
+      }
+    } catch (error) {
+      toast({
+        text: 'Ocorreu um erro ao deletar sucesso!',
+        type: 'danger',
+      });
+    } finally {
+      setIsLoadingDelete(false);
+    }
+  }
+
   return (
     <Container>
       <Loader isLoading={isLoading} />
 
-      {contacts.length > 0 && (
+      <Modal
+        onCancel={handleCloseDeleteModal}
+        onConfirm={handleConfirmDeleteContact}
+        confirmLabel="Deletar"
+        title={`Tem certeza que deseja remover o contato ${contactBeingDeleted?.name} ?`}
+        danger
+        isLoading={isLoadingDelete}
+        visible={isDeleteModalVisible}
+      >
+        <p>Esta ação não poderá ser desfeita!</p>
+      </Modal>
+
+      {contacts?.length > 0 && (
         <InputSearchContainer>
           <input
             value={searchTerm}
@@ -84,10 +139,10 @@ function Home(): JSX.Element {
         </InputSearchContainer>
       )}
 
-      <Header justifyContent={hasError ? 'flex-end' : (contacts.length > 0 ? 'space-between' : 'center')}>
-        {!hasError && contacts.length > 0 && (
+      <Header justifyContent={hasError ? 'flex-end' : (contacts?.length > 0 ? 'space-between' : 'center')}>
+        {!hasError && contacts?.length > 0 && (
           <strong>
-            {filteredContacts.length === 1 ? '1 contato' : `${filteredContacts.length} contatos` }
+            {filteredContacts?.length === 1 ? '1 contato' : `${filteredContacts?.length} contatos` }
           </strong>
         )}
         <Link to="/new">Novo Contato</Link>
@@ -116,7 +171,7 @@ function Home(): JSX.Element {
       {!hasError && (
         <>
 
-          {contacts.length < 1 && !isLoading && (
+          {contacts?.length < 1 && !isLoading && (
             <EmptyListContainer>
               <img src={emptyBox} alt="Empty Box" />
 
@@ -128,7 +183,7 @@ function Home(): JSX.Element {
             </EmptyListContainer>
           )}
 
-          {contacts.length > 0 && filteredContacts.length < 1 && (
+          {contacts?.length > 0 && filteredContacts?.length < 1 && (
             <SearchNotFoundContainer>
               <img src={magnifierQuestion} alt="Magnifier Question" />
 
@@ -138,13 +193,13 @@ function Home(): JSX.Element {
             </SearchNotFoundContainer>
           )}
 
-          {filteredContacts.length > 0 && (
-          <ListHeader orderBy={orderBy}>
-            <button type="button" onClick={handleToggleOrderBy}>
-              <span>Nome</span>
-              <img src={arrow} alt="Arrow" />
-            </button>
-          </ListHeader>
+          {filteredContacts?.length > 0 && (
+            <ListHeader orderBy={orderBy}>
+              <button type="button" onClick={handleToggleOrderBy}>
+                <span>Nome</span>
+                <img src={arrow} alt="Arrow" />
+              </button>
+            </ListHeader>
           )}
 
           {filteredContacts.map((contact) => (
@@ -164,7 +219,7 @@ function Home(): JSX.Element {
                   <img src={edit} alt="edit-my-contacts" />
                 </Link>
 
-                <button type="button">
+                <button type="button" onClick={() => handleDeleteContact(contact)}>
                   <img src={trash} alt="delete-my-contacts" />
                 </button>
               </div>

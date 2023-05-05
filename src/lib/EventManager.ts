@@ -1,35 +1,36 @@
 type listenerPayload = {
   type: string,
   text: string
+  duration?: number;
 }
 
 interface IEventManager {
-  listeners: Record<string, Array<((payload: listenerPayload) => void)>>;
+  listeners: Map<string, Array<((payload: listenerPayload) => void)>>;
   on: (event: string, listener: () => void) => void;
-  emit: (event: string, payload: listenerPayload) => void
+  emit: (event: string, payload: listenerPayload) => void;
 }
 
 export default class EventManager implements IEventManager {
-  public listeners: Record<string, Array<((payload: listenerPayload) => void)>>;
+  public listeners: Map<string, Array<((payload: listenerPayload) => void)>>;
 
   constructor() {
-    this.listeners = {};
+    this.listeners = new Map();
   }
 
   public on(event: string, listener: (payload: listenerPayload) => void): void {
-    if (!this.listeners[event]) {
-      this.listeners[event] = [];
+    if (!this.listeners.has(event)) {
+      this.listeners.set(event, []);
     }
-    console.log('a');
-    this.listeners[event].push(listener);
+
+    this.listeners.get(event)?.push(listener);
   }
 
   public emit(event: string, payload: listenerPayload): void {
-    if (!this.listeners[event]) {
+    if (!this.listeners.has(event)) {
       return;
     }
 
-    this.listeners[event].forEach((listener) => {
+    this.listeners.get(event)?.forEach((listener) => {
       listener(payload);
     });
   }
@@ -37,7 +38,7 @@ export default class EventManager implements IEventManager {
   public removeListener(
     event: string, listenerRemove:(payload: listenerPayload) => void,
   ): void {
-    const listeners = this.listeners[event];
+    const listeners = this.listeners.get(event);
 
     if (!listeners) {
       return;
@@ -47,32 +48,6 @@ export default class EventManager implements IEventManager {
       listener !== listenerRemove
     ));
 
-    this.listeners[event] = filteredListeners;
+    this.listeners.set(event, filteredListeners);
   }
 }
-
-const toastEventManager = new EventManager();
-
-function addToast1(payload: listenerPayload): void {
-  console.log('addToast on 1', payload);
-}
-function addToast2(payload: listenerPayload): void {
-  console.log('addToast on 2', payload);
-}
-
-toastEventManager.on('addtoast', addToast1);
-toastEventManager.on('addtoast', addToast2);
-
-toastEventManager.emit('addtoast', {
-  type: 'danger',
-  text: 'Texto',
-});
-
-toastEventManager.removeListener('addtoast', addToast1);
-
-toastEventManager.emit('addtoast', {
-  type: 'success',
-  text: 'adawd',
-});
-
-console.log(toastEventManager);

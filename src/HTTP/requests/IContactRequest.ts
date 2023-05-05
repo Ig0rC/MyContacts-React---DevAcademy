@@ -5,3 +5,5 @@ export default interface ICreateContactRequest {
   phone: string;
   category_id: string;
 }
+
+export type IUpdateContactRequest = ICreateContactRequest

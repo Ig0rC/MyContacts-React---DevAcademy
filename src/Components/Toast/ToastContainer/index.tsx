@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { toastEventManager } from '../../../utils/toast';
 import ToastMessage from '../ToastMessage';
 import { Container } from './styles';
 
@@ -6,35 +7,46 @@ interface IMessages {
   id: number;
   type: 'default' | 'success' | 'danger';
   text: string;
+  duration?: number;
 }
 
 function ToastContainer(): JSX.Element {
   const [messages, setMessages] = useState<IMessages[]>([]);
 
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    function handleAddToast(event: any): void {
-      const { type, text } = event.detail;
+    function handleAddToast(event: { type: string, text: string, duration?: number }): void {
+      const { type, text, duration } = event;
 
-      setMessages((prevState) => [
-        ...prevState,
-        { id: Math.random(), type, text },
-      ]);
+      if (type === 'default' || type === 'success' || type === 'danger') {
+        setMessages((prevState) => [
+          ...prevState,
+          {
+            id: Math.random(), type, text, duration,
+          },
+        ]);
+      }
     }
 
-    document.addEventListener('addtoast', handleAddToast);
+    toastEventManager.on('addtoast', handleAddToast);
 
     return () => {
-      document.removeEventListener('addtoast', handleAddToast);
+      toastEventManager.removeListener('addtoast', handleAddToast);
     };
+  }, []);
+
+  const handleRemoveMessage = useCallback((id: number) => {
+    setMessages((prevState) => prevState.filter(
+      (message) => (message.id !== id),
+    ));
   }, []);
 
   return (
     <Container>
       {messages.map((message) => (
         <ToastMessage
-          type={message.type}
-          text={message.text}
+          key={message.id}
+          message={message}
+          onRemoveMessage={handleRemoveMessage}
         />
       ))}
     </Container>

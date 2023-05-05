@@ -1,11 +1,14 @@
+import { useRef } from 'react';
 import PageHeader from '../../Components/PageHeader';
-import ContactForm from '../../Components/ContactForm';
+import ContactForm, { IContactFormRef } from '../../Components/ContactForm';
 import ContactsService from '../../services/ContactsService';
-import ICreateContactRequest from '../../HTTP/requests/ICreateContactRequest';
+import ICreateContactRequest from '../../HTTP/requests/IContactRequest';
 import IResponseContactRequest from '../../HTTP/responses/IContactResponse';
 import toast from '../../utils/toast';
 
 function NewContact(): JSX.Element {
+  const contactFormRef = useRef<IContactFormRef>(null);
+
   async function handleSubmit(
     name: string, email: string, phone: string, categoryId: string,
   ): Promise<void> {
@@ -20,9 +23,14 @@ function NewContact(): JSX.Element {
       await ContactsService
         .createContact<ICreateContactRequest, IResponseContactRequest>(contact);
 
+      if (contactFormRef.current) {
+        contactFormRef.current.resetFields();
+      }
+
       toast({
         type: 'success',
         text: 'Contato cadastrado com sucesso!',
+        duration: 3000,
       });
     } catch (error) {
       toast({
@@ -38,6 +46,7 @@ function NewContact(): JSX.Element {
         title="Novo contato"
       />
       <ContactForm
+        ref={contactFormRef}
         buttonLabel="Cadastrar"
         onSubmit={handleSubmit}
       />

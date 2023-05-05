@@ -1,13 +1,9 @@
 import {
-  useState, FormEvent, ChangeEvent, useEffect,
+  useState, FormEvent, ChangeEvent, useEffect, forwardRef, useImperativeHandle,
 } from 'react';
-import PropTypes, { InferProps } from 'prop-types';
-
 import isEmailValid from '../../utils/isEmailValid';
 import formatPhone from '../../utils/formatPhone';
-
 import { Form, ButtonContainer } from './styles';
-
 import FormGroup from '../FormGroup';
 import Input from '../Input';
 import Select from '../Select';
@@ -15,28 +11,55 @@ import Button from '../Button';
 import useErrors from '../../hooks/useErrors';
 import CategoriesServices from '../../services/CategoriesService';
 import Spinner from '../Spinner';
+import IResponseContactRequest from '../../HTTP/responses/IContactResponse';
+import useSafeAsyncState from '../../hooks/useSafeAsyncState';
 
 interface ICategories {
   id: string;
   name: string;
 }
 
-function ContactForm(
-  { buttonLabel, onSubmit }: InferProps<typeof ContactForm.propTypes>,
-): JSX.Element {
+interface Props {
+  buttonLabel: string;
+  onSubmit: (name: string, email: string, phone: string, categoryId: string,) => Promise<void>;
+}
+
+export interface IContactFormRef {
+  setFieldsValues: (contact: IResponseContactRequest) => void;
+  resetFields: () => void;
+}
+
+const ContactForm = forwardRef(({ buttonLabel, onSubmit } : Props,
+  ref) => {
   const {
     setError,
     getErrorMessageByFieldName,
     removeError,
     errors,
   } = useErrors();
-  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [categoryId, setCategoryId] = useState('');
-  const [categories, setCategories] = useState<ICategories[]>([]);
+
+  const [isLoadingCategories, setIsLoadingCategories] = useSafeAsyncState<boolean>(true);
+  const [name, setName] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [phone, setPhone] = useState<string>('');
+  const [categoryId, setCategoryId] = useState<string>('');
+  const [categories, setCategories] = useSafeAsyncState<ICategories[]>([]);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  useImperativeHandle(ref, () => ({
+    setFieldsValues: (contact: IResponseContactRequest) => {
+      setName(contact.name ?? '');
+      setEmail(contact.email ?? '');
+      setPhone(formatPhone(contact.phone ?? ''));
+      setCategoryId(contact.category_id ?? '');
+    },
+    resetFields: () => {
+      setName('');
+      setEmail('');
+      setPhone('');
+      setCategoryId('');
+    },
+  }), []);
 
   const isFormValid = (name && errors.length === 0);
 
@@ -52,7 +75,7 @@ function ContactForm(
     }
 
     loadCategories();
-  }, []);
+  }, [setCategories, setIsLoadingCategories]);
 
   async function handleSubmit(event: FormEvent): Promise<void> {
     event.preventDefault();
@@ -150,11 +173,6 @@ function ContactForm(
       </ButtonContainer>
     </Form>
   );
-}
-
-ContactForm.propTypes = {
-  buttonLabel: PropTypes.string.isRequired,
-  onSubmit: PropTypes.func.isRequired,
-};
+});
 
 export default ContactForm;

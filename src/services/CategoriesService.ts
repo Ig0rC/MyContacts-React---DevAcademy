@@ -4,7 +4,7 @@ class CategoriesService {
   private readonly httpClient: HttpClient;
 
   constructor() {
-    this.httpClient = new HttpClient('http://localhost:3001');
+    this.httpClient = new HttpClient(process.env.REACT_APP_DNS as string);
   }
 
   listCategories<T>(): Promise<T> {

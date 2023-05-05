@@ -5,7 +5,7 @@ interface IHeaders {
   Authorization?: string;
 }
 
-interface RequestMask<O> {
+interface RequestMask<O = null> {
   body?: O;
   method: string;
   headers?: IHeaders;
@@ -34,7 +34,22 @@ class HttpClient {
     return this.makeRequest<D>(path, {
       body: options.body,
       method: 'POST',
-      headers: options.headers,
+      headers: options?.headers,
+    });
+  }
+
+  public put<D, R>(path: string, options: RequestMethod<D>): Promise<R> {
+    return this.makeRequest<D>(path, {
+      body: options.body,
+      method: 'PUT',
+      headers: options?.headers,
+    });
+  }
+
+  public delete<R>(path: string, options?: RequestMethod<null>): Promise<R> {
+    return this.makeRequest(path, {
+      method: 'DELETE',
+      headers: options?.headers,
     });
   }
 

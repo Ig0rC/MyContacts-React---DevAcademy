@@ -1,49 +1,60 @@
-import PropTypes from 'prop-types';
-import ReactDOM from 'react-dom';
+import React from 'react';
 import Button from '../Button';
+import ReactPortal from '../ReactPortal';
 import { Overlay, Container, Footer } from './styles';
 
 interface modalProps {
   danger: boolean;
+  title: string;
+  children: React.ReactNode;
+  cancelLabel?: string;
+  confirmLabel?: string;
+  onCancel: () => void;
+  onConfirm: () => void;
+  visible: boolean;
+  isLoading?: boolean;
 }
 
-function Modal({ danger }: modalProps): JSX.Element {
-  return ReactDOM.createPortal(
-    <Overlay>
-      <Container danger={danger}>
-        <h1>Tem certeza que deseja remover o contato Igor Cardoso?</h1>
-        <p>
-          corpo do modal
-        </p>
+function Modal({
+  danger, title, children, cancelLabel = 'Cancelar', confirmLabel = 'Confirmar', visible, onCancel, onConfirm, isLoading = false,
+}: modalProps): JSX.Element | null {
+  if (!visible) {
+    return null;
+  }
 
-        <Footer>
-          <button
-            className="cancel-button"
-            type="button"
-          >
-            Cancelar
-          </button>
-          <Button
-            disabled={false}
-            isLoading={false}
-            danger
-            type="button"
-          >
-            Deletar
-          </Button>
-        </Footer>
-      </Container>
-    </Overlay>,
-    document.getElementById('modal-root') as HTMLElement,
+  return (
+    <ReactPortal containerId="modal-root">
+      <Overlay>
+        <Container danger={danger}>
+          <h1>{title}</h1>
+
+          <div className="modal-body">
+            {children}
+          </div>
+
+          <Footer>
+            <button
+              onClick={onCancel}
+              className="cancel-button"
+              type="button"
+              disabled={isLoading}
+            >
+              {cancelLabel}
+            </button>
+            <Button
+              onClick={onConfirm}
+              disabled={false}
+              isLoading={isLoading}
+              danger
+              type="button"
+            >
+              {confirmLabel}
+            </Button>
+          </Footer>
+        </Container>
+      </Overlay>
+    </ReactPortal>
   );
 }
-
-Modal.propTypes = {
-  danger: PropTypes.bool,
-};
-
-Modal.defaultProps = {
-  danger: false,
-};
 
 export default Modal;
