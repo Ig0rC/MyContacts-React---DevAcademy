@@ -4,7 +4,7 @@ class ContactsService {
   private readonly httpClient: HttpClient;
 
   constructor() {
-    this.httpClient = new HttpClient(process.env.REACT_APP_DNS as string);
+    this.httpClient = new HttpClient(process.env.REACT_APP_BASE_URL || 'http://localhost:3001');
   }
 
   listContacts<T>(orderBy = 'asc'): Promise<T> {
