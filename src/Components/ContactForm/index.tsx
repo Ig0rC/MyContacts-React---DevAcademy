@@ -11,8 +11,8 @@ import Button from '../Button';
 import useErrors from '../../hooks/useErrors';
 import CategoriesServices from '../../services/CategoriesService';
 import Spinner from '../Spinner';
-import IResponseContactRequest from '../../HTTP/responses/IContactResponse';
 import useSafeAsyncState from '../../hooks/useSafeAsyncState';
+import { DomainContactResponse } from '../../services/mappers/ContactMapper';
 
 interface ICategories {
   id: string;
@@ -21,16 +21,20 @@ interface ICategories {
 
 interface Props {
   buttonLabel: string;
-  onSubmit: (name: string, email: string, phone: string, categoryId: string,) => Promise<void>;
+  onSubmit: (formData:
+    { name: string, email: string, phone: string, categoryId: string }
+  ) => Promise<void>;
 }
 
 export interface IContactFormRef {
-  setFieldsValues: (contact: IResponseContactRequest) => void;
+  setFieldsValues: (contact: DomainContactResponse) => void;
   resetFields: () => void;
 }
 
-const ContactForm = forwardRef(({ buttonLabel, onSubmit } : Props,
-  ref) => {
+const ContactForm = forwardRef((
+  { buttonLabel, onSubmit }: Props,
+  ref,
+) => {
   const {
     setError,
     getErrorMessageByFieldName,
@@ -47,11 +51,11 @@ const ContactForm = forwardRef(({ buttonLabel, onSubmit } : Props,
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   useImperativeHandle(ref, () => ({
-    setFieldsValues: (contact: IResponseContactRequest) => {
+    setFieldsValues: (contact: DomainContactResponse) => {
       setName(contact.name ?? '');
       setEmail(contact.email ?? '');
       setPhone(formatPhone(contact.phone ?? ''));
-      setCategoryId(contact.category_id ?? '');
+      setCategoryId(contact.category.id ?? '');
     },
     resetFields: () => {
       setName('');
@@ -82,9 +86,9 @@ const ContactForm = forwardRef(({ buttonLabel, onSubmit } : Props,
 
     setIsSubmitting(true);
 
-    await onSubmit(
-      name, email, phone, categoryId,
-    );
+    await onSubmit({
+      categoryId, email, name, phone,
+    });
 
     setIsSubmitting(false);
   }

@@ -19,24 +19,18 @@ import ContactsService from '../../services/ContactsService';
 import Button from '../../Components/Button';
 import Modal from '../../Components/Modal';
 import toast from '../../utils/toast';
-
-interface Contact {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  category_id: string;
-  category_name: string;
-}
+import { DomainContactResponse } from '../../services/mappers/ContactMapper';
 
 function Home(): JSX.Element {
-  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [contacts, setContacts] = useState<DomainContactResponse[]>([]);
   const [orderBy, setOrderBy] = useState('asc');
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [isDeleteModalVisible, setisDeleteModalVisible] = useState(false);
-  const [contactBeingDeleted, setContactBeingDeleted] = useState<Contact | null>(null);
+  const [contactBeingDeleted, setContactBeingDeleted] = useState<DomainContactResponse | null>(
+    null,
+  );
   const [isLoadingDelete, setIsLoadingDelete] = useState(false);
   const filteredContacts = useMemo(() => contacts?.filter((contact) => (
     contact.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -46,7 +40,7 @@ function Home(): JSX.Element {
     try {
       setIsLoading(true);
 
-      const contactsList = await ContactsService.listContacts<Contact[]>(orderBy);
+      const contactsList = await ContactsService.listContacts(orderBy);
 
       setContacts(contactsList);
       setHasError(false);
@@ -73,7 +67,7 @@ function Home(): JSX.Element {
     loadContacts();
   }
 
-  function handleDeleteContact(contact: Contact): void {
+  function handleDeleteContact(contact: DomainContactResponse): void {
     setContactBeingDeleted(contact);
     setisDeleteModalVisible(true);
   }
@@ -142,7 +136,7 @@ function Home(): JSX.Element {
       <Header justifyContent={hasError ? 'flex-end' : (contacts?.length > 0 ? 'space-between' : 'center')}>
         {!hasError && contacts?.length > 0 && (
           <strong>
-            {filteredContacts?.length === 1 ? '1 contato' : `${filteredContacts?.length} contatos` }
+            {filteredContacts?.length === 1 ? '1 contato' : `${filteredContacts?.length} contatos`}
           </strong>
         )}
         <Link to="/new">Novo Contato</Link>
@@ -207,7 +201,7 @@ function Home(): JSX.Element {
               <div className="info">
                 <div className="contact-name">
                   <strong>{contact.name}</strong>
-                  {contact.category_name && (<small>{contact.category_name}</small>)}
+                  {contact.category.name && (<small>{contact.category.name}</small>)}
                 </div>
 
                 <span>{contact.email}</span>

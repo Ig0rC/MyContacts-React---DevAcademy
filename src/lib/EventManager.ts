@@ -35,9 +35,7 @@ export default class EventManager implements IEventManager {
     });
   }
 
-  public removeListener(
-    event: string, listenerRemove:(payload: listenerPayload) => void,
-  ): void {
+  public removeListener(event: string, listenerRemove:(payload: listenerPayload) => void): void {
     const listeners = this.listeners.get(event);
 
     if (!listeners) {

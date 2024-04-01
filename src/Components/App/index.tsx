@@ -13,7 +13,7 @@ function App(): JSX.Element {
   return (
     <BrowserRouter>
       <ThemeProvider theme={defaultTheme}>
-        <GlobalStyles />
+        <GlobalStyles theme={defaultTheme} />
 
         <ToastContainer />
 

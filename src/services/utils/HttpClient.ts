@@ -11,8 +11,8 @@ interface RequestMask<O = null> {
   headers?: IHeaders;
 }
 
-interface RequestMethod<O> {
-  body?: O;
+interface RequestMethod {
+  body?: unknown;
   headers?: IHeaders;
 }
 
@@ -23,30 +23,30 @@ class HttpClient {
     this.baseURL = baseURL;
   }
 
-  public async get<T>(path: string, options?: RequestMethod<T>): Promise<T> {
+  public async get<T>(path: string, options?: RequestMethod): Promise<T> {
     return this.makeRequest(path, {
       method: 'GET',
       headers: options?.headers,
     });
   }
 
-  public post<D, R>(path: string, options: RequestMethod<D>): Promise<R> {
-    return this.makeRequest<D>(path, {
+  public post<R>(path: string, options: RequestMethod): Promise<R> {
+    return this.makeRequest(path, {
       body: options.body,
       method: 'POST',
       headers: options?.headers,
     });
   }
 
-  public put<D, R>(path: string, options: RequestMethod<D>): Promise<R> {
-    return this.makeRequest<D>(path, {
+  public put<R>(path: string, options: RequestMethod): Promise<R> {
+    return this.makeRequest(path, {
       body: options.body,
       method: 'PUT',
       headers: options?.headers,
     });
   }
 
-  public delete<R>(path: string, options?: RequestMethod<null>): Promise<R> {
+  public delete<R>(path: string, options?: RequestMethod): Promise<R> {
     return this.makeRequest(path, {
       method: 'DELETE',
       headers: options?.headers,

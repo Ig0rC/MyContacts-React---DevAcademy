@@ -2,26 +2,20 @@ import { useRef } from 'react';
 import PageHeader from '../../Components/PageHeader';
 import ContactForm, { IContactFormRef } from '../../Components/ContactForm';
 import ContactsService from '../../services/ContactsService';
-import ICreateContactRequest from '../../HTTP/requests/IContactRequest';
 import IResponseContactRequest from '../../HTTP/responses/IContactResponse';
 import toast from '../../utils/toast';
+
+interface Contact {
+  name: string, email: string, phone: string, categoryId: string
+}
 
 function NewContact(): JSX.Element {
   const contactFormRef = useRef<IContactFormRef>(null);
 
-  async function handleSubmit(
-    name: string, email: string, phone: string, categoryId: string,
-  ): Promise<void> {
+  async function handleSubmit(contact: Contact): Promise<void> {
     try {
-      const contact = {
-        name,
-        email,
-        phone,
-        category_id: categoryId,
-      };
-
       await ContactsService
-        .createContact<ICreateContactRequest, IResponseContactRequest>(contact);
+        .createContact<IResponseContactRequest>(contact);
 
       if (contactFormRef.current) {
         contactFormRef.current.resetFields();

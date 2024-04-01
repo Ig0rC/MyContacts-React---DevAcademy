@@ -6,11 +6,14 @@ import ContactsService from '../../services/ContactsService';
 import IResponseContactRequest from '../../HTTP/responses/IContactResponse';
 import Loader from '../../Components/Loader';
 import toast from '../../utils/toast';
-import { IUpdateContactRequest } from '../../HTTP/requests/IContactRequest';
 import useSafeAsyncAction from '../../hooks/useSafeAsyncAction';
 
 interface IParams {
   id: string;
+}
+
+interface IContact {
+  name: string, email: string, phone: string, categoryId: string
 }
 
 function EditContact(): JSX.Element {
@@ -25,8 +28,7 @@ function EditContact(): JSX.Element {
   useEffect(() => {
     async function loadContact(): Promise<void> {
       try {
-        const contact = await
-        ContactsService.getContactById<IResponseContactRequest>(
+        const contact = await ContactsService.getContactById(
           id,
         );
 
@@ -52,19 +54,10 @@ function EditContact(): JSX.Element {
     loadContact();
   }, [id, history, safeAsyncAction]);
 
-  async function handleSubmit(
-    name: string, email: string, phone: string, categoryId: string,
-  ): Promise<void> {
+  async function handleSubmit(contact: IContact): Promise<void> {
     try {
-      const contact = {
-        name,
-        email,
-        phone,
-        category_id: categoryId,
-      };
-
       const contactData = await ContactsService
-        .updateContact<IUpdateContactRequest, IResponseContactRequest>(id, contact);
+        .updateContact<IResponseContactRequest>(id, contact);
 
       setContactName(contactData.name);
 
